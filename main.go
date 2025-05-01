@@ -1,1 +1,5 @@
-package discordbot
+package main
+
+func main() {
+	discord()
+}
