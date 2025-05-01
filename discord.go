@@ -50,8 +50,9 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
+	merged := m.Author.Username + " " + m.Content
 	if m.ChannelID == "876788680038158348" {
-		answer := askollama(m.Content)
+		answer := askollama(merged)
 		s.ChannelMessageSend(m.ChannelID, answer)
 
 	}
