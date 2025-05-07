@@ -51,7 +51,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 	merged := m.Author.Username + " " + m.Content
-	if m.ChannelID == "876788680038158348" {
+	if m.ChannelID == os.Getenv("CHANNEL_ID") {
 		answer := askollama(merged)
 		s.ChannelMessageSend(m.ChannelID, answer)
 
@@ -64,7 +64,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 func getmsgs(s *discordgo.Session, m *discordgo.MessageCreate) {
-	if m.ChannelID == "876788680038158348" {
+	if m.ChannelID == os.Getenv("CHANNEL_ID") {
 		fmt.Println(m.Author.Username, m.Content)
 	}
 

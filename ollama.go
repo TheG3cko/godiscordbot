@@ -5,6 +5,7 @@ import (
 	"github.com/ollama/ollama/api"
 	"net/http"
 	"net/url"
+	"os"
 )
 
 func askollamaNoHistory(prompt string) string {
@@ -36,14 +37,18 @@ func askollamaNoHistory(prompt string) string {
 func askollama(prompt string) string {
 
 	c := api.NewClient(
-		&url.URL{Scheme: "http", Host: "10.10.10.24:11434"},
+		&url.URL{Scheme: "http", Host: os.Getenv("OLLAMA_HOST")},
 		http.DefaultClient,
 	)
 	stream := false
+	sysprompt, err := os.ReadFile("sysprompt.txt")
+	if err != nil {
+		panic(err)
+	}
 	var result string
 	userHistories = append(userHistories, api.Message{
 		Role:    "system",
-		Content: "You are a Discord Chatbot. At the beginning of each message, there is the username of the user. This way you can separate them. ",
+		Content: string(sysprompt),
 	})
 
 	userHistories = append(userHistories, api.Message{
