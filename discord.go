@@ -38,7 +38,10 @@ func discord() {
 	<-sc
 
 	// Cleanly close down the Discord session.
-	dg.Close()
+	err = dg.Close()
+	if err != nil {
+		return
+	}
 }
 
 // This function will be called (due to AddHandler above) every time a new
@@ -46,14 +49,17 @@ func discord() {
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// Ignore all messages created by the bot itself
-	// This isn't required in this specific example but it's a good practice.
+	// This isn't required in this specific example, but it's a good practice.
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
 	merged := m.Author.Username + " " + m.Content
 	if m.ChannelID == os.Getenv("CHANNEL_ID") {
 		answer := askollama(merged)
-		s.ChannelMessageSend(m.ChannelID, answer)
+		_, err := s.ChannelMessageSend(m.ChannelID, answer)
+		if err != nil {
+			return
+		}
 
 	}
 
@@ -63,7 +69,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 }
 
-func getmsgs(s *discordgo.Session, m *discordgo.MessageCreate) {
+func getmsgs(_ *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.ChannelID == os.Getenv("CHANNEL_ID") {
 		fmt.Println(m.Author.Username, m.Content)
 	}
