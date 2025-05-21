@@ -1,4 +1,4 @@
-package main
+package ollama
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-func askollama(prompt string) string {
+func AskOllama(prompt string, u *[]api.Message) string {
 
 	c := api.NewClient(
 		&url.URL{Scheme: "http", Host: os.Getenv("OLLAMA_HOST")},
@@ -20,12 +20,12 @@ func askollama(prompt string) string {
 		panic(err)
 	}
 	var result string
-	userHistories = append(userHistories, api.Message{
+	*u = append(*u, api.Message{
 		Role:    "system",
 		Content: string(sysprompt),
 	})
 
-	userHistories = append(userHistories, api.Message{
+	*u = append(*u, api.Message{
 		Role:    "user",
 		Content: prompt,
 	})
@@ -33,11 +33,11 @@ func askollama(prompt string) string {
 		context.Background(),
 		&api.ChatRequest{
 			Model:    "llama3.1",
-			Messages: userHistories,
+			Messages: *u,
 			Stream:   &stream,
 		},
 		func(response api.ChatResponse) error {
-			userHistories = append(userHistories, api.Message{
+			*u = append(*u, api.Message{
 				Role:    "assistant",
 				Content: response.Message.Content,
 			})

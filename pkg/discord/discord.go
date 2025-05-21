@@ -1,19 +1,21 @@
-package main
+package discord
 
 import (
 	"fmt"
+	"github.com/TheG3cko/godiscordbot/pkg/ollama"
 	"github.com/bwmarrin/discordgo"
+	"github.com/ollama/ollama/api"
 	"os"
 	"os/signal"
 	"syscall"
 )
 
-func discord() {
+func Client() {
 
-	// Create a new Discord session using the provided bot token.
+	// Create a new Client session using the provided bot token.
 	dg, err := discordgo.New("Bot " + os.Getenv("DISCORD_TOKEN"))
 	if err != nil {
-		fmt.Println("error creating Discord session,", err)
+		fmt.Println("error creating Client session,", err)
 		return
 	}
 
@@ -24,7 +26,7 @@ func discord() {
 	// In this example, we only care about receiving message events.
 	dg.Identify.Intents = discordgo.IntentsAllWithoutPrivileged
 
-	// Open a websocket connection to Discord and begin listening.
+	// Open a websocket connection to Client and begin listening.
 	err = dg.Open()
 	if err != nil {
 		fmt.Println("error opening connection,", err)
@@ -37,12 +39,14 @@ func discord() {
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-sc
 
-	// Cleanly close down the Discord session.
+	// Cleanly close down the Client session.
 	err = dg.Close()
 	if err != nil {
 		return
 	}
 }
+
+var UserHistories []api.Message
 
 // This function will be called (due to AddHandler above) every time a new
 // message is created on any channel that the authenticated bot has access to.
@@ -55,7 +59,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 	merged := m.Author.Username + " " + m.Content
 	if m.ChannelID == os.Getenv("CHANNEL_ID") {
-		answer := askollama(merged)
+		answer := ollama.AskOllama(merged, &UserHistories)
 		_, err := s.ChannelMessageSend(m.ChannelID, answer)
 		if err != nil {
 			return
