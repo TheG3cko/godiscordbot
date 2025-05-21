@@ -9,7 +9,26 @@ on:
   pull_request:
     branches: [ "main" ]
 
+
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+  steps:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.3'
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v6 # Or the latest major version
+        with:
+          version: latest
+        # Optional: version of
 
   build:
     runs-on: ubuntu-latest
@@ -19,7 +38,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
-        go-version: '1.24.2'
+        go-version: '1.24.3'
 
     - name: Build
       run: go build -v ./...
