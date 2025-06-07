@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 func Client() {
@@ -57,8 +58,9 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
-	merged := m.Author.Username + " " + m.Content
+	merged := fmt.Sprintf("Time: %s User: %s, Message: %s", time.Now(), m.Author.Username, m.Content)
 	if m.ChannelID == os.Getenv("CHANNEL_ID") {
+		s.ChannelTyping(m.ChannelID)
 		answer := ollama.AskOllama(merged, &UserHistories)
 		_, err := s.ChannelMessageSend(m.ChannelID, answer)
 		if err != nil {

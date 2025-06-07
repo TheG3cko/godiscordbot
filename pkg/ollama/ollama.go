@@ -3,6 +3,7 @@ package ollama
 import (
 	"context"
 	"github.com/ollama/ollama/api"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -20,19 +21,27 @@ func AskOllama(prompt string, u *[]api.Message) string {
 		panic(err)
 	}
 	var result string
-	*u = append(*u, api.Message{
-		Role:    "system",
-		Content: string(sysprompt),
-	})
+	if *u == nil {
+		*u = append(*u, api.Message{
+			Role:    "system",
+			Content: string(sysprompt),
+		})
+	}
+
+	//imgData, err := os.ReadFile("82751531.png")
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	*u = append(*u, api.Message{
 		Role:    "user",
 		Content: prompt,
+		// Images:  []api.ImageData{imgData},
 	})
 	e := c.Chat(
 		context.Background(),
 		&api.ChatRequest{
-			Model:    "llama3.1",
+			Model:    os.Getenv("OLLAMA_MODEL"),
 			Messages: *u,
 			Stream:   &stream,
 		},
